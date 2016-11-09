@@ -5,20 +5,23 @@ from django.http import Http404
 from hoover.models import Hoover
 from hoover.serializers import HooverSerializer
 from hoover import analyzer
+from operator import itemgetter
 
 
 class HooverSearch(APIView):
     def get(self, request, format=None):
         search_input = request.query_params.get('keyword', None)
 
-        keywords = analyzer.get_keyword(search_input)
-        hoover_scores = analyzer.get_recommended_hoover(keywords)
-        sorted_hoover_ids = sorted(hoover_scores.items(), key=hoover_scores.get, reverse=True)
+        if search_input:
+            keywords = analyzer.get_keyword(search_input)
+            hoover_scores = analyzer.get_recommended_hoover(keywords)
+            sorted_hoover_ids = sorted(hoover_scores.items(), key=itemgetter(1), reverse=True)
+            unsorted_hoovers = Hoover.objects.in_bulk(sorted_hoover_ids)
+            hoovers = [unsorted_hoovers[hoover_id] for hoover_id in sorted_hoover_ids]
+        else:
+            hoovers = Hoover.objects.all()
 
-        hoovers = Hoover.objects.in_bulk(sorted_hoover_ids)
-        sorted_hoovers = [hoovers[id] for id in sorted_hoover_ids]
-
-        serializer = HooverSerializer(sorted_hoovers[:20], many=True)
+        serializer = HooverSerializer(hoovers[:20], many=True)
         return Response(serializer.data)
 
 
