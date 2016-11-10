@@ -14,13 +14,21 @@ class HooverSearch(APIView):
 
         if search_input:
             keywords = analyzer.get_keyword(search_input)
+
+            # 모든 Reviews 들에 대해 단어를 검색해서 사용할 경우 -> 예전에 사용
             # hoover_scores = analyzer.get_recommended_hoover(keywords)
+
+            # Elastic Search를 이용한 검색을 할 경우!
             hoover_scores = analyzer.get_recommended_hoover_by_dict(keywords)
-            sorted_hoover_ids = sorted(hoover_scores.items(), key=itemgetter(1), reverse=True)
+
+            sorted_hoover_scores = sorted(hoover_scores.items(), key=itemgetter(1), reverse=True)
+            sorted_hoover_ids = []
+            for sorted_hoover in sorted_hoover_scores:
+                sorted_hoover_ids.append(sorted_hoover[0])
             unsorted_hoovers = Hoover.objects.in_bulk(sorted_hoover_ids)
             hoovers = [unsorted_hoovers[hoover_id] for hoover_id in sorted_hoover_ids]
         else:
-            hoovers = Hoover.objects.all()
+            hoovers = Hoover.objects.all()[:20]
 
         serializer = HooverSerializer(hoovers[:20], many=True)
         return Response(serializer.data)
@@ -28,7 +36,7 @@ class HooverSearch(APIView):
 
 class HooverList(APIView):
     def get(self, request, format=None):
-        hoovers = Hoover.objects.all()
+        hoovers = Hoover.objects.all()[:20]
         serializer = HooverSerializer(hoovers, many=True)
         return Response(serializer.data)
 

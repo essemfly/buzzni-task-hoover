@@ -9,7 +9,7 @@ class Hoover(models.Model):
     avg_rating = models.FloatField(default=0)
 
     def get_review(self):
-        return self.review.all()[:5]
+        return self.review.all()[:3]
 
 
 class Review(models.Model):
