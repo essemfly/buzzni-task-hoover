@@ -53,8 +53,8 @@ def get_recommended_hoover_by_dict(keywords):
 
 def get_hoover_score_by_dict(review_ids):
     hoover_scores = {}
-    reviews = Review.objects.filter(id__in=review_ids)
-    for review in reviews:
+    for review_id in review_ids:
+        review = Review.objects.get(id=review_id)
         if review.product_id_id in hoover_scores.keys():
             hoover_scores[review.product_id_id] += review.rating - 3
         else:
