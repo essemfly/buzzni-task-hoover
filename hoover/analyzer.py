@@ -2,6 +2,9 @@
 
 from konlpy.tag import Twitter
 from hoover.models import Hoover, Review
+from joblib import Parallel, delayed
+from hoover import search
+from collections import defaultdict
 
 
 def get_keyword(doc):
@@ -32,3 +35,37 @@ def get_hoover_score(hoover_id, keywords):
             if keyword in review_nouns:
                 hoover_score += review.rating - 3
     return hoover_score
+
+
+def get_recommended_hoover_by_dict(keywords):
+    temp = []
+    for keyword in keywords:
+        if len(keyword) > 1:
+            res = search.search(keyword)
+            review_ids = res['hits']['hits'][0]['_source']['review_ids']
+            temp.append(get_hoover_score_by_dict(review_ids))
+        else:
+            pass
+    results = {}
+    for res in temp:
+        results = dsum(results, res)
+    return results
+
+
+def get_hoover_score_by_dict(review_ids):
+    hoover_scores = {}
+    reviews = Review.objects.filter(id__in=review_ids)
+    for review in reviews:
+        if review.product_id_id in hoover_scores.keys():
+            hoover_scores[review.product_id_id] += review.rating - 3
+        else:
+            hoover_scores[review.product_id_id] = review.rating - 3
+    return hoover_scores
+
+
+def dsum(*dicts):
+    ret = defaultdict(int)
+    for d in dicts:
+        for k, v in d.items():
+            ret[k] += v
+    return dict(ret)

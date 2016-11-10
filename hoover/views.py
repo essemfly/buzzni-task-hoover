@@ -14,7 +14,8 @@ class HooverSearch(APIView):
 
         if search_input:
             keywords = analyzer.get_keyword(search_input)
-            hoover_scores = analyzer.get_recommended_hoover(keywords)
+            # hoover_scores = analyzer.get_recommended_hoover(keywords)
+            hoover_scores = analyzer.get_recommended_hoover_by_dict(keywords)
             sorted_hoover_ids = sorted(hoover_scores.items(), key=itemgetter(1), reverse=True)
             unsorted_hoovers = Hoover.objects.in_bulk(sorted_hoover_ids)
             hoovers = [unsorted_hoovers[hoover_id] for hoover_id in sorted_hoover_ids]
