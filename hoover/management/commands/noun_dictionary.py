@@ -14,7 +14,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         pos_tagger = Twitter()
         es = Elasticsearch(
-            [{'host': 'search-buzzni-hnnrarosn63fw5tcbxoh4bpare.ap-northeast-2.es.amazonaws.com', 'port': 80}])
+            [{'host': 'search-hoover-review-xyvam7y4p25hqc3ivhv2onwmna.ap-northeast-2.es.amazonaws.com', 'port': 80}])
         reviews = Review.objects.all()
 
         self.stdout.write(self.style.SUCCESS('Total reviews: ' + str(len(reviews))))
