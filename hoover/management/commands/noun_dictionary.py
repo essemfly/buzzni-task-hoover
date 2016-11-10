@@ -28,7 +28,7 @@ class Command(BaseCommand):
                 # self.stdout.write(self.style.SUCCESS(str(token)))
                 token_per_review.append(token)
             tokens += token_per_review
-            review_tokens.append([review.product_id_id, token_per_review])
+            review_tokens.append([review.id, token_per_review])
         texts = nltk.Text(tokens, name='NMSC')
 
         for unique_noun in set(texts.tokens):
