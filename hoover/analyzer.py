@@ -2,7 +2,6 @@
 
 from konlpy.tag import Twitter
 from hoover.models import Hoover, Review
-from joblib import Parallel, delayed
 from hoover import search
 from collections import defaultdict
 
