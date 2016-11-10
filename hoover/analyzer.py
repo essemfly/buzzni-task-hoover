@@ -37,34 +37,22 @@ def get_hoover_score(hoover_id, keywords):
 
 
 def get_recommended_hoover_by_dict(keywords):
-    temp = []
+    hoover_scores = {}
     for keyword in keywords:
         if len(keyword) > 1:
             res = search.search(keyword)
             review_ids = res['hits']['hits'][0]['_source']['review_ids']
-            temp.append(get_hoover_score_by_dict(review_ids))
+            hoover_scores = get_hoover_score_by_dict(review_ids, hoover_scores)
         else:
             pass
-    results = {}
-    for res in temp:
-        results = dsum(results, res)
-    return results
+    return hoover_scores
 
 
-def get_hoover_score_by_dict(review_ids):
-    hoover_scores = {}
-    for review_id in review_ids:
-        review = Review.objects.get(id=review_id)
+def get_hoover_score_by_dict(review_ids, hoover_scores):
+    reviews = Review.objects.filter(id__in=review_ids)
+    for review in reviews:
         if review.product_id_id in hoover_scores.keys():
             hoover_scores[review.product_id_id] += review.rating - 3
         else:
             hoover_scores[review.product_id_id] = review.rating - 3
     return hoover_scores
-
-
-def dsum(*dicts):
-    ret = defaultdict(int)
-    for d in dicts:
-        for k, v in d.items():
-            ret[k] += v
-    return dict(ret)
